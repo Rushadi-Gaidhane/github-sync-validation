@@ -1,0 +1,29 @@
+name: Validate Develop Sync
+
+on:
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  validate-sync:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Fetch develop
+        run: git fetch origin develop
+
+      - name: Validate sync
+        run: |
+          git merge-base --is-ancestor origin/develop HEAD
+
+          if [ $? -ne 0 ]; then
+            echo "ERROR: Branch is not synchronized with develop"
+            exit 1
+          fi
+
+          echo "SUCCESS: Branch is synchronized with develop"
